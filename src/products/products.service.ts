@@ -56,4 +56,21 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     await this.product.update({ where: { id }, data: { isDelete: true } })
     return { message: `The product deleted success` }
   }
+
+  async validateProducts(ids: number[]) {
+    ids = Array.from(new Set(ids))
+    const products = await this.product.findMany({
+      where: {
+        id: {
+          in: ids
+        }
+      }
+    })
+
+    if (products.length !== ids.length) {
+      throw new RpcException({ message: 'Some products were not found', status: HttpStatus.BAD_REQUEST })
+    }
+
+    return products
+  }
 }
